@@ -2,25 +2,40 @@ import os
 import discord
 from dotenv import load_dotenv
 from gcsa.google_calendar import GoogleCalendar
+import asyncio
+from discord.ext import commands
+
 
 load_dotenv() # load all the variables from the .env file
 
-gc = GoogleCalendar('ce2db4bd90ceeb1456a64923ae8d74801ca09077c5cb388bbb821449b9c362d8@group.calendar.google.com')
-for event in gc:
-    print(event)
+class Manager:
+	def __init__(self):
+		self.bot = discord.Bot(intents=discord.Intents.all(), guild=[os.getenv('DISCORD_GUILD')])
+		# self.database = Database()
+
+		self.calendar = GoogleCalendar(os.getenv('GOOGLE_CALENDAR_ID'), credentials_path='config/credentials.json')
+
+		setattr(self.bot, 'manager', self)
+		asyncio.run(self.setup())
 
 
-bot = discord.Bot()
+	async def setup(self):
+		# Load all the cogs
+		for filename in os.listdir('./cogs'):
+			if filename.endswith('.py'):
+				self.bot.load_extension(f'cogs.{filename[:-3]}')
 
-@bot.event
-async def on_ready():
-    await bot.sync_commands()
+		@self.bot.event
+		async def on_ready():
+			await self.bot.sync_commands()
+			print(f"{self.bot.user} is ready and online!")
 
-    print(f"{bot.user} is ready and online!")
+	def run(self):
+		self.bot.run(os.getenv('DISCORD_TOKEN'))
 
-# Load cogs without having to hardcode them all
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        bot.load_extension(f'cogs.{filename[:-3]}')
+def main():
+	manager = Manager()
+	manager.run()
 
-bot.run(os.getenv('DISCORD_TOKEN')) # run the bot with the token
+if __name__ == "__main__":
+	main()
