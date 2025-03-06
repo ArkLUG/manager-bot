@@ -5,7 +5,6 @@ from gcsa.google_calendar import GoogleCalendar
 import asyncio
 from discord.ext import commands
 
-
 load_dotenv() # load all the variables from the .env file
 
 class Manager:
@@ -17,7 +16,6 @@ class Manager:
 
 		setattr(self.bot, 'manager', self)
 		asyncio.run(self.setup())
-
 
 	async def setup(self):
 		# Load all the cogs
