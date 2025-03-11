@@ -8,7 +8,7 @@ class Help(commands.Cog):
 	def __init__(self,bot):
 		self.bot = bot
 
-	@commands.Cog.listener()
+	@commands.Cog.listener(once=True)
 	async def on_ready(self):
 		print(f"{type(self).__name__} Cog is loaded!")
 
